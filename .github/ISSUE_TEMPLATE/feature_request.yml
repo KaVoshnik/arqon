@@ -1,0 +1,43 @@
+name: Feature or system idea
+description: Suggest a new item, machine, mechanic or world system
+title: "[Idea] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: The idea
+      description: What should be added or changed, in a few sentences.
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why is it interesting to play with?
+      description: What decision does it give the player? Avoid pure chores and timers.
+    validations:
+      required: true
+  - type: textarea
+    id: interactions
+    attributes:
+      label: How does it connect to existing systems?
+      description: Temperature, weather, medicine, machines, and so on. Which values does it read or change?
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Climate and weather
+        - Body and medicine
+        - Machines and tech
+        - Items and crafting
+        - Interface and feedback
+        - Multiplayer and server
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives or references
+      description: Other mods or games that do something similar, and what you would do differently.

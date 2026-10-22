@@ -1,0 +1,62 @@
+name: Bug report
+description: Something in Arqon does not work as intended
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Describe the problem and what you expected to happen instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+  - type: input
+    id: arqon-version
+    attributes:
+      label: Arqon version
+      placeholder: 0.1.0
+    validations:
+      required: true
+  - type: input
+    id: minecraft-version
+    attributes:
+      label: Minecraft version
+      placeholder: 1.21.10
+    validations:
+      required: true
+  - type: input
+    id: loader-version
+    attributes:
+      label: Fabric Loader and Fabric API versions
+      placeholder: Loader 0.19.5, Fabric API 0.138.4
+  - type: dropdown
+    id: side
+    attributes:
+      label: Where did it happen?
+      options:
+        - Singleplayer
+        - Multiplayer, as a client
+        - Dedicated server
+    validations:
+      required: true
+  - type: textarea
+    id: mods
+    attributes:
+      label: Other installed mods
+      description: List them, or say "none".
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or crash report
+      description: Paste `latest.log` or a crash report link (mclo.gs works well). Do not paste personal information.
+      render: shell

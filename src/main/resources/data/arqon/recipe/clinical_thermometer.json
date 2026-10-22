@@ -1,0 +1,17 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"category": "equipment",
+	"key": {
+		"N": "minecraft:iron_nugget",
+		"R": "minecraft:redstone"
+	},
+	"pattern": [
+		"NRN",
+		"NRN",
+		"NNN"
+	],
+	"result": {
+		"id": "arqon:clinical_thermometer",
+		"count": 1
+	}
+}

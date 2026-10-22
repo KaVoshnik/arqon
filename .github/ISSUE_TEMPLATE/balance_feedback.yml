@@ -1,0 +1,38 @@
+name: Balance or pacing feedback
+description: Something feels too fast, too slow, too harsh or too boring
+title: "[Balance] "
+labels: ["balance"]
+body:
+  - type: textarea
+    id: feeling
+    attributes:
+      label: What feels off?
+      description: Be concrete, for example "body temperature reaches hypothermia after 40 real minutes in a taiga".
+    validations:
+      required: true
+  - type: input
+    id: playtime
+    attributes:
+      label: Approximate playtime with Arqon
+      placeholder: 3 hours
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Situation
+      description: Biome, time of day, weather, items in use, singleplayer or multiplayer.
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested change
+      description: Optional. Which number or rule would you change, and to what?
+  - type: dropdown
+    id: fatigue
+    attributes:
+      label: Is it a chore?
+      description: Does the mechanic make you decide something, or just repeat the same action?
+      options:
+        - It is a real decision
+        - It is a repeated chore
+        - Not sure

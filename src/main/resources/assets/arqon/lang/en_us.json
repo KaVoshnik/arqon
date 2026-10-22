@@ -1,0 +1,12 @@
+{
+	"item.arqon.thermometer": "Thermometer",
+	"item.arqon.clinical_thermometer": "Clinical Thermometer",
+	"message.arqon.ambient_temperature": "Air temperature: %s °C",
+	"message.arqon.body_temperature": "Body temperature: %s °C",
+	"effect.arqon.asphyxia": "Asphyxia",
+	"effect.arqon.hyperthermia": "Hyperthermia",
+	"effect.arqon.mild_hypothermia": "Mild Hypothermia",
+	"effect.arqon.moderate_hypothermia": "Moderate Hypothermia",
+	"death.attack.hyperthermia": "%1$s died from hyperthermia",
+	"death.attack.hypothermia": "%1$s died from hypothermia"
+}

@@ -1,0 +1,12 @@
+{
+	"item.arqon.thermometer": "Термометр",
+	"item.arqon.clinical_thermometer": "Градусник",
+	"message.arqon.ambient_temperature": "Температура воздуха: %s °C",
+	"message.arqon.body_temperature": "Температура тела: %s °C",
+	"effect.arqon.asphyxia": "Асфиксия",
+	"effect.arqon.hyperthermia": "Гипертермия",
+	"effect.arqon.mild_hypothermia": "Лёгкая гипотермия",
+	"effect.arqon.moderate_hypothermia": "Умеренная гипотермия",
+	"death.attack.hyperthermia": "%1$s умер от гипертермии",
+	"death.attack.hypothermia": "%1$s умер от гипотермии"
+}

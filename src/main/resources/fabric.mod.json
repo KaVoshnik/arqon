@@ -1,0 +1,24 @@
+{
+	"schemaVersion": 1,
+	"id": "arqon",
+	"version": "${version}",
+	"name": "Arqon",
+	"description": "Realistic tech mod: world and body temperature, medicine, and deeply interconnected systems.",
+	"authors": [
+		"Kavoshnik"
+	],
+	"license": "All-Rights-Reserved",
+	"icon": "assets/arqon/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"dev.arqon.Arqon"
+		]
+	},
+	"depends": {
+		"fabricloader": ">=0.19.5",
+		"minecraft": "~1.21.10",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}
