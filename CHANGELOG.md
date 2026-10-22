@@ -28,6 +28,20 @@ How to write entries
 - Crafting recipes for both thermometers
 - English and Russian translations
 - Developer-only `/bodytemp <value>` command, registered in the development environment only
+- Local air temperature: shade and roofs (including tree canopies), underground cave temperature, altitude cooling above Y 70, wind chill in the open, and sun load in warm biomes
+- Nearby heat and cold sources change the air temperature: lava, fire, soul fire, lit campfires and furnaces, magma blocks, torches, ice, packed ice, blue ice, snow blocks, powder snow
+- Sensory feedback without numbers: heat haze and frost vignette on the screen, aim shiver during hypothermia, breath vapor in the cold, sweat drops in the heat
+- Body and air temperature are synced to the player (needed for the visual feedback)
+- Client entrypoint and separate client source set (`src/client`)
+
+### Changed
+
+- Thermometer shows the local air temperature (shade, roof, sources) instead of the plain biome value
+- Body temperature drift now scales with how far the air is from the comfortable range: 0.25x just outside it, 1x at 10 °C outside (the old constant rate of 0.1 °C per 2 minutes), up to 2x
+- Upper comfort limit of the air: 30 °C -> 32 °C
+- Biome temperature scale: 20 -> 16 °C per 1.0 of vanilla biome temperature (desert about 34 °C on average instead of 39 °C)
+- Day and night swing of the air: 7 °C -> 6 °C, plus up to 6 °C of direct sun in open warm biomes
+- Nether now gets a +6 °C offset on top of the biome value (about 40 °C)
 
 <!-- After the GitHub repository exists, add compare links here, for example:
 [Unreleased]: https://github.com/<user>/arqon/compare/v0.1.0...HEAD

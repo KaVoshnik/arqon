@@ -47,11 +47,13 @@ public final class BodyTemperatureSystem {
 		}
 		if (player.isCreative() || player.isSpectator()) {
 			applyState(player, ThermalState.NORMAL);
+			BodyTemperature.setAmbient(player, ModAttachments.DEFAULT_AMBIENT);
 			return;
 		}
 
 		ServerLevel level = (ServerLevel) player.level();
-		double ambient = AmbientTemperature.at(level, player.blockPosition());
+		double ambient = AmbientTemperature.at(level, player);
+		BodyTemperature.setAmbient(player, ambient);
 		double body = ClimateModel.nextBodyTemperature(BodyTemperature.get(player), ambient, INTERVAL_TICKS);
 		BodyTemperature.set(player, body);
 

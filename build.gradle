@@ -11,6 +11,18 @@ repositories {
 	// Loom сам добавляет всё нужное для Minecraft.
 }
 
+loom {
+	// Клиентский код (src/client) отделён от общего (src/main), чтобы сервер случайно не трогал клиентские классы.
+	splitEnvironmentSourceSets()
+
+	mods {
+		"arqon" {
+			sourceSet sourceSets.main
+			sourceSet sourceSets.client
+		}
+	}
+}
+
 dependencies {
 	// Версии меняются в gradle.properties
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"

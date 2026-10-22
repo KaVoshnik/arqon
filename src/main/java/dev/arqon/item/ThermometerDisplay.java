@@ -56,7 +56,7 @@ public final class ThermometerDisplay {
 				}
 				SUPPRESSED_UNTIL.remove(player.getUUID());
 			}
-			double ambient = AmbientTemperature.at((ServerLevel) player.level(), player.blockPosition());
+			double ambient = AmbientTemperature.at((ServerLevel) player.level(), player);
 			player.displayClientMessage(
 					Component.translatable("message.arqon.ambient_temperature", Arqon.formatTemperature(ambient)),
 					true

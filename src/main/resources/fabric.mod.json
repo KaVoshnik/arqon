@@ -13,6 +13,9 @@
 	"entrypoints": {
 		"main": [
 			"dev.arqon.Arqon"
+		],
+		"client": [
+			"dev.arqon.client.ArqonClient"
 		]
 	},
 	"depends": {
