@@ -62,6 +62,25 @@ public final class Clothing {
 	public static final SetProfile METAL = new SetProfile(-0.10, -0.15);
 
 	/**
+	 * Защита конкретной части тела: что надето именно на ней. Любой из комплектов может быть null (ничего не надето).
+	 * Здесь берётся полное значение предмета, а не вклад слота: шапка целиком греет голову, пальто туловище и руки,
+	 * штаны ноги (ботинки добавляют немного сверху).
+	 */
+	public static Protection forPart(dev.arqon.body.BodyPart part, SetProfile head, SetProfile chest, SetProfile legs, SetProfile feet) {
+		Protection p = switch (part.group) {
+			case HEAD -> cover(head, 1.0);
+			case TORSO -> cover(chest, 1.0);
+			case ARMS -> cover(chest, 0.9);
+			case LEGS -> cover(legs, 0.75).plus(cover(feet, 0.25));
+		};
+		return p.clamped();
+	}
+
+	private static Protection cover(SetProfile set, double weight) {
+		return set == null ? Protection.NONE : new Protection(set.cold() * weight, set.heat() * weight);
+	}
+
+	/**
 	 * Температура воздуха, которую тело ощущает на самом деле, с учётом одежды.
 	 * В комфортном диапазоне одежда ничего не меняет; за его пределами смягчает или усиливает отклонение.
 	 */

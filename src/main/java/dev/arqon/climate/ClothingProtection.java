@@ -8,6 +8,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 
+import dev.arqon.body.BodyPart;
 import dev.arqon.item.ModItems;
 
 /** Что именно надето на игроке и какую защиту от холода и жары это даёт. */
@@ -43,6 +44,17 @@ public final class ClothingProtection {
 		total = total.plus(piece(player, EquipmentSlot.LEGS, Clothing.Slot.LEGS));
 		total = total.plus(piece(player, EquipmentSlot.FEET, Clothing.Slot.FEET));
 		return total.clamped();
+	}
+
+	/** Защита конкретной части тела: что надето именно на ней. */
+	public static Clothing.Protection forPart(Player player, BodyPart part) {
+		return Clothing.forPart(
+				part,
+				SETS.get(player.getItemBySlot(EquipmentSlot.HEAD).getItem()),
+				SETS.get(player.getItemBySlot(EquipmentSlot.CHEST).getItem()),
+				SETS.get(player.getItemBySlot(EquipmentSlot.LEGS).getItem()),
+				SETS.get(player.getItemBySlot(EquipmentSlot.FEET).getItem())
+		);
 	}
 
 	private static Clothing.Protection piece(Player player, EquipmentSlot equipmentSlot, Clothing.Slot slot) {

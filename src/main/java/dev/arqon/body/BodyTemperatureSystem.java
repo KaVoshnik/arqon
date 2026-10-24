@@ -49,6 +49,7 @@ public final class BodyTemperatureSystem {
 		}
 		if (player.isCreative() || player.isSpectator()) {
 			applyState(player, ThermalState.NORMAL);
+			FrostbiteSystem.clearEffects(player);
 			BodyTemperature.setAmbient(player, ModAttachments.DEFAULT_AMBIENT);
 			return;
 		}
@@ -64,9 +65,11 @@ public final class BodyTemperatureSystem {
 		ThermalState state = ThermalState.of(body);
 		if (state.isFatal()) {
 			kill(player, level, state);
-		} else {
-			applyState(player, state);
+			return;
 		}
+		applyState(player, state);
+		// Обморожение считаем по воздуху без одежды: одежда учитывается отдельно для каждой части тела.
+		FrostbiteSystem.update(player, air, body, INTERVAL_TICKS / 20.0);
 	}
 
 	private static void kill(ServerPlayer player, ServerLevel level, ThermalState state) {

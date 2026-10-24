@@ -1,5 +1,8 @@
 package dev.arqon.body;
 
+import java.util.Collections;
+import java.util.List;
+
 import com.mojang.serialization.Codec;
 
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
@@ -40,6 +43,18 @@ public final class ModAttachments {
 			builder -> builder
 					.initializer(() -> DEFAULT_AMBIENT)
 					.syncWith(ByteBufCodecs.DOUBLE, AttachmentSyncPredicate.targetOnly())
+	);
+
+	/**
+	 * Обморожение частей тела (0..100), по порядку {@link BodyPart}. Сохраняется вместе с игроком и
+	 * синхронизируется с ним самим (экран тела читает значения на клиенте). После смерти сбрасывается.
+	 */
+	public static final AttachmentType<List<Double>> BODY_FROST = AttachmentRegistry.create(
+			Arqon.id("body_frost"),
+			builder -> builder
+					.initializer(() -> Collections.nCopies(BodyPart.COUNT, 0.0))
+					.persistent(Codec.DOUBLE.listOf())
+					.syncWith(ByteBufCodecs.DOUBLE.apply(ByteBufCodecs.list()), AttachmentSyncPredicate.targetOnly())
 	);
 
 	/** Вызывается из инициализатора мода, чтобы типы зарегистрировались заранее. */

@@ -38,6 +38,12 @@ How to write entries
 - Vanilla armor now affects temperature: leather slightly warms, metal armor (chainmail, iron, gold, diamond, netherite) makes both cold and heat slightly worse
 - More heat sources: lava cauldron, lit redstone lamp, redstone torch and candles, soul torch, lantern, soul lantern, jack o'lantern, shroomlight, glowstone; frosted ice as a cold source
 - Clothing and shelters affect what the body feels and what the visual feedback shows; the thermometer still shows the plain air temperature
+- Body model with six parts: head, torso, two arms, two legs
+- Frostbite per body part: parts freeze when the air they feel is below 0 °C, extremities first, faster when the whole body is cold; warming up only in real warmth; severe frostbite (75+) does not heal on its own
+- Clothing now protects per part: a hat the head, a coat the torso and arms, trousers and boots the legs
+- Effects Frostbitten Legs (-15 % movement speed per level) and Frostbitten Arms (-15 % attack and mining speed per level)
+- Body screen (key B, rebindable): an outlined silhouette of the six parts with a frost icon on affected parts, a feeling panel (body and surroundings in words) and a panel for the hovered part with condition, a four-step bar and its consequence; no numbers, panels widen to fit the longest text; hint messages above the hotbar when a part goes numb or frostbitten
+- Developer-only `/frost <part|all> <0-100>` command
 
 ### Changed
 

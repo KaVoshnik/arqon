@@ -6,6 +6,8 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 
 import dev.arqon.Arqon;
 import dev.arqon.climate.ThermalState;
@@ -23,8 +25,23 @@ public final class ModEffects {
 	/** Умеренная гипотермия: 28.0 – 32.0 °C */
 	public static final Holder<MobEffect> MODERATE_HYPOTHERMIA = register("moderate_hypothermia", 0x3F78C8);
 
+	/** Обмороженные ноги: замедляют ход, каждый уровень -15 % к скорости. */
+	public static final Holder<MobEffect> FROSTBITTEN_LEGS = registerEffect("frostbitten_legs", new ThermalEffect(0x6F8FD0)
+			.addAttributeModifier(Attributes.MOVEMENT_SPEED, Arqon.id("effect.frostbitten_legs"),
+					-0.15, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+	/** Обмороженные руки: пальцы не слушаются, каждый уровень -15 % к скорости удара и добычи. */
+	public static final Holder<MobEffect> FROSTBITTEN_ARMS = registerEffect("frostbitten_arms", new ThermalEffect(0x7C6FD0)
+			.addAttributeModifier(Attributes.ATTACK_SPEED, Arqon.id("effect.frostbitten_arms.attack"),
+					-0.15, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
+			.addAttributeModifier(Attributes.BLOCK_BREAK_SPEED, Arqon.id("effect.frostbitten_arms.mining"),
+					-0.15, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+
 	private static Holder<MobEffect> register(String name, int color) {
-		return Registry.registerForHolder(BuiltInRegistries.MOB_EFFECT, Arqon.id(name), new ThermalEffect(color));
+		return registerEffect(name, new ThermalEffect(color));
+	}
+
+	private static Holder<MobEffect> registerEffect(String name, MobEffect effect) {
+		return Registry.registerForHolder(BuiltInRegistries.MOB_EFFECT, Arqon.id(name), effect);
 	}
 
 	/** Эффект, который висит в данном состоянии, или null, если эффекта нет (норма, смерть). */
@@ -40,6 +57,10 @@ public final class ModEffects {
 
 	public static List<Holder<MobEffect>> all() {
 		return List.of(ASPHYXIA, HYPERTHERMIA, MILD_HYPOTHERMIA, MODERATE_HYPOTHERMIA);
+	}
+
+	public static List<Holder<MobEffect>> frostbite() {
+		return List.of(FROSTBITTEN_LEGS, FROSTBITTEN_ARMS);
 	}
 
 	/** Вызывается из инициализатора мода, чтобы эффекты зарегистрировались заранее. */
