@@ -18,6 +18,7 @@ public class ArqonClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 		ClientTickEvents.END_CLIENT_TICK.register(ThermalFeedback::tick);
+		ClientTickEvents.END_CLIENT_TICK.register(HeartbeatFeedback::tick);
 
 		// addFirst: рисуем под остальным HUD, чтобы хотбар и сердечки оставались читаемыми.
 		HudElementRegistry.addFirst(Arqon.id("thermal_overlay"), ThermalOverlay::render);

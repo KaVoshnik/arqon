@@ -82,6 +82,19 @@ public final class Frostbite {
 		return frost;
 	}
 
+	/** Обмороженная голова: бег тратит больше сил. Дополнительное истощение за секунду бега на уровне 0, 1, 2. */
+	public static double sprintExhaustionPerSecond(int level) {
+		return level < 0 ? 0.0 : 0.2 * (level + 1);
+	}
+
+	/** Обмороженное туловище: во сколько раз быстрее остывает тело (1 без обморожения). */
+	public static double coolingFactor(int level) {
+		return level < 0 ? 1.0 : 1.0 + 0.25 * (level + 1);
+	}
+
+	/** Туловище от этого значения обмороженности (из 100) отдаёт сердцебиение в уши. */
+	public static final double HEARTBEAT_FROM = 85.0;
+
 	/** Среднее состояние нескольких частей (для эффектов на обе руки или обе ноги). */
 	public static double average(double... values) {
 		if (values.length == 0) {

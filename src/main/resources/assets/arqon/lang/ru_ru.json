@@ -67,7 +67,9 @@
 	"body.arqon.air.scorching": "Пекло",
 	"body.arqon.effect.legs": "Ходьба медленнее",
 	"body.arqon.effect.arms": "Бить и копать медленнее",
-	"body.arqon.effect.head": "Пока без последствий",
-	"body.arqon.effect.torso": "Пока без последствий",
-	"body.arqon.effect.none": "Без последствий"
+	"body.arqon.effect.head": "Темнеет в глазах, бег выматывает",
+	"body.arqon.effect.torso": "Тело остывает быстрее",
+	"body.arqon.effect.none": "Без последствий",
+	"effect.arqon.frostbitten_head": "Обмороженное лицо",
+	"effect.arqon.frostbitten_torso": "Обмороженное туловище"
 }

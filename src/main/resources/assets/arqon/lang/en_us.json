@@ -67,7 +67,9 @@
 	"body.arqon.air.scorching": "Scorching",
 	"body.arqon.effect.legs": "Walking is slower",
 	"body.arqon.effect.arms": "Hitting and mining are slower",
-	"body.arqon.effect.head": "No consequences yet",
-	"body.arqon.effect.torso": "No consequences yet",
-	"body.arqon.effect.none": "No consequences"
+	"body.arqon.effect.head": "Vision darkens, sprinting wears you out",
+	"body.arqon.effect.torso": "The body cools faster",
+	"body.arqon.effect.none": "No consequences",
+	"effect.arqon.frostbitten_head": "Frostbitten Face",
+	"effect.arqon.frostbitten_torso": "Frostbitten Torso"
 }

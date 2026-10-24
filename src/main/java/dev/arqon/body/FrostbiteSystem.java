@@ -38,6 +38,17 @@ public final class FrostbiteSystem {
 			announce(player, before, after);
 		}
 		applyEffects(player, after);
+
+		// Обмороженная голова: бег выматывает сильнее.
+		int headLevel = Frostbite.Stage.of(after[BodyPart.HEAD.ordinal()]).effectLevel();
+		if (headLevel >= 0 && player.isSprinting()) {
+			player.causeFoodExhaustion((float) (Frostbite.sprintExhaustionPerSecond(headLevel) * seconds));
+		}
+	}
+
+	/** Во сколько раз быстрее остывает тело игрока из-за обмороженного туловища (1 без обморожения). */
+	public static double coolingFactor(ServerPlayer player) {
+		return Frostbite.coolingFactor(Frostbite.Stage.of(BodyFrost.get(player, BodyPart.TORSO)).effectLevel());
 	}
 
 	/** Сообщает игроку, когда в какой-то группе частей состояние стало хуже. Текст описывает ощущение, без чисел. */
@@ -70,6 +81,8 @@ public final class FrostbiteSystem {
 	public static void applyEffects(ServerPlayer player, double[] frost) {
 		applyEffect(player, ModEffects.FROSTBITTEN_LEGS, level(frost, BodyPart.LEFT_LEG, BodyPart.RIGHT_LEG));
 		applyEffect(player, ModEffects.FROSTBITTEN_ARMS, level(frost, BodyPart.LEFT_ARM, BodyPart.RIGHT_ARM));
+		applyEffect(player, ModEffects.FROSTBITTEN_HEAD, Frostbite.Stage.of(frost[BodyPart.HEAD.ordinal()]).effectLevel());
+		applyEffect(player, ModEffects.FROSTBITTEN_TORSO, Frostbite.Stage.of(frost[BodyPart.TORSO.ordinal()]).effectLevel());
 	}
 
 	/** Снимает все эффекты обморожения (креатив, наблюдатель). */

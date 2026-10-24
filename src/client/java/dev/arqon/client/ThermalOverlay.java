@@ -4,6 +4,10 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 
+import dev.arqon.body.BodyFrost;
+import dev.arqon.body.BodyPart;
+import dev.arqon.body.Frostbite;
+
 /**
  * Оверлей жары и холода без текстур: цветная виньетка по краям экрана и лёгкий «пульс» тона.
  * Жара: тёплая оранжево-красная дымка с мерцанием. Холод: голубовато-белая изморозь по краям.
@@ -24,15 +28,25 @@ public final class ThermalOverlay {
 	}
 
 	public static void render(GuiGraphics graphics, DeltaTracker tickCounter) {
+		Minecraft client = Minecraft.getInstance();
+		int width = graphics.guiWidth();
+		int height = graphics.guiHeight();
+
+		// Обмороженная голова: темнеет по краям зрения, тем сильнее, чем хуже.
+		if (client.player != null) {
+			double headFrost = BodyFrost.get(client.player, BodyPart.HEAD);
+			if (headFrost >= Frostbite.FROSTBITTEN_FROM) {
+				float s = (float) Math.min(1.0, (headFrost - Frostbite.FROSTBITTEN_FROM) / (Frostbite.MAX - Frostbite.FROSTBITTEN_FROM));
+				vignette(graphics, width, height, 0x000000, 0.45f + 0.5f * s, 0.30f + 0.20f * s);
+			}
+		}
+
 		float heat = ThermalFeedback.heat();
 		float cold = ThermalFeedback.cold();
 		if (heat < 0.02f && cold < 0.02f) {
 			return;
 		}
 
-		Minecraft client = Minecraft.getInstance();
-		int width = graphics.guiWidth();
-		int height = graphics.guiHeight();
 		float time = (client.level != null ? client.level.getGameTime() : 0L) + tickCounter.getGameTimeDeltaPartialTick(false);
 
 		if (heat >= 0.02f) {

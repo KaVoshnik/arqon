@@ -43,6 +43,8 @@ How to write entries
 - Clothing now protects per part: a hat the head, a coat the torso and arms, trousers and boots the legs
 - Effects Frostbitten Legs (-15 % movement speed per level) and Frostbitten Arms (-15 % attack and mining speed per level)
 - Body screen (key B, rebindable): an outlined silhouette of the six parts with a frost icon on affected parts, a feeling panel (body and surroundings in words) and a panel for the hovered part with condition, a four-step bar and its consequence; no numbers, panels widen to fit the longest text; hint messages above the hotbar when a part goes numb or frostbitten
+- Effects Frostbitten Face (vision darkens at the edges, sprinting costs more food) and Frostbitten Torso (the body cools 1.25x / 1.5x / 1.75x faster)
+- Heartbeat in the ears when the torso frostbite reaches 85 and above, louder and faster towards 100
 - Developer-only `/frost <part|all> <0-100>` command
 
 ### Changed

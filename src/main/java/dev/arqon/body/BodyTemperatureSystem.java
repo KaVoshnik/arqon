@@ -59,7 +59,12 @@ public final class BodyTemperatureSystem {
 		double air = AmbientTemperature.at(level, player);
 		double ambient = Clothing.effectiveAmbient(air, ClothingProtection.of(player));
 		BodyTemperature.setAmbient(player, ambient);
-		double body = ClimateModel.nextBodyTemperature(BodyTemperature.get(player), ambient, INTERVAL_TICKS);
+		double current = BodyTemperature.get(player);
+		double body = ClimateModel.nextBodyTemperature(current, ambient, INTERVAL_TICKS);
+		if (body < current) {
+			// Обмороженное туловище хуже держит тепло: остывание быстрее.
+			body = current + (body - current) * FrostbiteSystem.coolingFactor(player);
+		}
 		BodyTemperature.set(player, body);
 
 		ThermalState state = ThermalState.of(body);

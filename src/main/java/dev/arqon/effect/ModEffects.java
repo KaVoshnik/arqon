@@ -36,6 +36,11 @@ public final class ModEffects {
 			.addAttributeModifier(Attributes.BLOCK_BREAK_SPEED, Arqon.id("effect.frostbitten_arms.mining"),
 					-0.15, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
 
+	/** Обмороженное лицо: темнеет в глазах, бег выматывает (уровни: -, обморожение, тяжёлое, омертвение). */
+	public static final Holder<MobEffect> FROSTBITTEN_HEAD = register("frostbitten_head", 0x8FB0E0);
+	/** Обмороженное туловище: тело остывает быстрее. */
+	public static final Holder<MobEffect> FROSTBITTEN_TORSO = register("frostbitten_torso", 0x5F7FB8);
+
 	private static Holder<MobEffect> register(String name, int color) {
 		return registerEffect(name, new ThermalEffect(color));
 	}
@@ -60,7 +65,7 @@ public final class ModEffects {
 	}
 
 	public static List<Holder<MobEffect>> frostbite() {
-		return List.of(FROSTBITTEN_LEGS, FROSTBITTEN_ARMS);
+		return List.of(FROSTBITTEN_LEGS, FROSTBITTEN_ARMS, FROSTBITTEN_HEAD, FROSTBITTEN_TORSO);
 	}
 
 	/** Вызывается из инициализатора мода, чтобы эффекты зарегистрировались заранее. */
