@@ -2,6 +2,7 @@ package dev.arqon.climate;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -57,19 +58,33 @@ public final class HeatSources {
 	static double strength(BlockState state) {
 		Block block = state.getBlock();
 
+		// Сильные источники: открытый огонь и лава.
 		if (block == Blocks.LAVA) return 30.0;
+		if (block == Blocks.LAVA_CAULDRON) return 12.0;
 		if (block == Blocks.FIRE) return 12.0;
 		if (block == Blocks.SOUL_FIRE) return 8.0;
 		if (block == Blocks.MAGMA_BLOCK) return 6.0;
 
+		// «Машины»: горящие печи и костры греют, пока горят.
 		if (isLit(state)) {
 			if (block == Blocks.CAMPFIRE) return 14.0;
 			if (block == Blocks.SOUL_CAMPFIRE) return 8.0;
 			if (block == Blocks.FURNACE || block == Blocks.BLAST_FURNACE || block == Blocks.SMOKER) return 9.0;
+			if (block == Blocks.REDSTONE_LAMP) return 1.5;
+			if (block == Blocks.REDSTONE_TORCH || block == Blocks.REDSTONE_WALL_TORCH) return 0.5;
+			if (state.is(BlockTags.CANDLES)) return 0.8;
 		}
 
+		// Слабые источники: факелы, фонари, светящиеся блоки.
 		if (block == Blocks.TORCH || block == Blocks.WALL_TORCH) return 1.5;
+		if (block == Blocks.SOUL_TORCH || block == Blocks.SOUL_WALL_TORCH) return 1.0;
+		if (block == Blocks.LANTERN) return 2.0;
+		if (block == Blocks.SOUL_LANTERN) return 1.5;
+		if (block == Blocks.JACK_O_LANTERN) return 1.5;
+		if (block == Blocks.SHROOMLIGHT || block == Blocks.GLOWSTONE) return 1.0;
 
+		// Холод.
+		if (block == Blocks.FROSTED_ICE) return -2.0;
 		if (block == Blocks.ICE) return -3.0;
 		if (block == Blocks.PACKED_ICE) return -4.0;
 		if (block == Blocks.BLUE_ICE) return -6.0;

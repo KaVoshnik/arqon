@@ -1,0 +1,14 @@
+{
+	"layers": {
+		"humanoid": [
+			{
+				"texture": "arqon:linen"
+			}
+		],
+		"humanoid_leggings": [
+			{
+				"texture": "arqon:linen"
+			}
+		]
+	}
+}

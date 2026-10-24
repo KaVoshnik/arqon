@@ -1,0 +1,15 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"category": "equipment",
+	"key": {
+		"X": "#minecraft:wool"
+	},
+	"pattern": [
+		"X X",
+		"X X"
+	],
+	"result": {
+		"id": "arqon:wool_boots",
+		"count": 1
+	}
+}

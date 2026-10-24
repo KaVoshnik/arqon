@@ -1,0 +1,15 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"category": "equipment",
+	"key": {
+		"X": "minecraft:string"
+	},
+	"pattern": [
+		"XXX",
+		"X X"
+	],
+	"result": {
+		"id": "arqon:linen_hat",
+		"count": 1
+	}
+}

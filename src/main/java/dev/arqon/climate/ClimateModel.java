@@ -73,6 +73,15 @@ public final class ClimateModel {
 	public static final double MAX_HEAT_FROM_SOURCES = 30.0;
 	public static final double MAX_COLD_FROM_SOURCES = 15.0;
 
+	// ---------- Укрытия (закрытые помещения) ----------
+
+	/** Наибольший объём закрытого помещения (в блоках воздуха); больший зал считается открытым пространством. */
+	public static final int MAX_ROOM_VOLUME = 250;
+	/** Насколько закрытое помещение сближает воздух с температурой пещеры: 0 не влияет, 1 полностью пещера. */
+	public static final double ENCLOSED_INSULATION = 0.5;
+	/** Во сколько раз источники тепла и холода сильнее в совсем крошечной комнате (линейно спадает до 1 к максимальному объёму). */
+	public static final double ROOM_SOURCE_BOOST = 0.6;
+
 	/**
 	 * Условия в точке, где находится игрок.
 	 *
@@ -84,6 +93,8 @@ public final class ClimateModel {
 	 * @param coverDepth       сколько блоков от головы до открытого неба (0 = небо открыто)
 	 * @param y                высота игрока
 	 * @param netSources       суммарный вклад ближайших источников тепла (+) и холода (-), °C
+	 * @param enclosed         игрок в закрытом помещении (стены, потолок, закрытые двери)
+	 * @param roomVolume       объём помещения в блоках воздуха (имеет смысл, если {@code enclosed})
 	 */
 	public record Conditions(
 			double biomeTemperature,
@@ -95,7 +106,9 @@ public final class ClimateModel {
 			boolean thundering,
 			int coverDepth,
 			double y,
-			double netSources) {
+			double netSources,
+			boolean enclosed,
+			int roomVolume) {
 	}
 
 	public static double perceivedTemperature(Conditions c) {
@@ -134,7 +147,16 @@ public final class ClimateModel {
 		double cave = CAVE_BASE + (mean - CAVE_BASE) * CAVE_BIOME_INFLUENCE;
 		double base = surface + (cave - surface) * underground;
 
-		return base + c.netSources();
+		double sources = c.netSources();
+		if (c.enclosed()) {
+			// Закрытое помещение держит тепло и не пускает ветер: воздух ближе к пещерному,
+			// а костёр или печь в тесной комнате греют заметно сильнее, чем под открытым небом.
+			base += (cave - base) * ENCLOSED_INSULATION;
+			double smallness = 1.0 - clamp01(c.roomVolume() / (double) MAX_ROOM_VOLUME);
+			sources *= 1.0 + ROOM_SOURCE_BOOST * smallness;
+		}
+
+		return base + sources;
 	}
 
 	/** Складывает тепло и холод от источников с ограничением по максимуму для каждого. */

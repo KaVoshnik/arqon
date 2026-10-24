@@ -33,9 +33,15 @@ How to write entries
 - Sensory feedback without numbers: heat haze and frost vignette on the screen, aim shiver during hypothermia, breath vapor in the cold, sweat drops in the heat
 - Body and air temperature are synced to the player (needed for the visual feedback)
 - Client entrypoint and separate client source set (`src/client`)
+- Shelters: a closed room (walls, roof, closed doors, up to 250 air blocks) keeps heat in, pulls the air halfway toward cave temperature, and makes heat and cold sources up to 1.6x stronger in tiny rooms
+- Clothing, two sets of four pieces with worn textures and recipes: Wool (Cap, Coat, Trousers, Boots) protects from cold but is worse in heat, Linen (Hat, Shirt, Trousers, Sandals) protects from heat
+- Vanilla armor now affects temperature: leather slightly warms, metal armor (chainmail, iron, gold, diamond, netherite) makes both cold and heat slightly worse
+- More heat sources: lava cauldron, lit redstone lamp, redstone torch and candles, soul torch, lantern, soul lantern, jack o'lantern, shroomlight, glowstone; frosted ice as a cold source
+- Clothing and shelters affect what the body feels and what the visual feedback shows; the thermometer still shows the plain air temperature
 
 ### Changed
 
+- Clothing textures redrawn: open face under hats, wool cap with cuff and pom, coat with collar, buttons and elbow patches, short-sleeved linen shirt, belts, boots and sandals; item icons match
 - Thermometer shows the local air temperature (shade, roof, sources) instead of the plain biome value
 - Body temperature drift now scales with how far the air is from the comfortable range: 0.25x just outside it, 1x at 10 °C outside (the old constant rate of 0.1 °C per 2 minutes), up to 2x
 - Upper comfort limit of the air: 30 °C -> 32 °C

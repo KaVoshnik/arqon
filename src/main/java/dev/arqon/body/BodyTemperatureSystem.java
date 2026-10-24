@@ -13,6 +13,8 @@ import net.minecraft.world.effect.MobEffectInstance;
 
 import dev.arqon.climate.AmbientTemperature;
 import dev.arqon.climate.ClimateModel;
+import dev.arqon.climate.Clothing;
+import dev.arqon.climate.ClothingProtection;
 import dev.arqon.climate.ThermalState;
 import dev.arqon.damage.ModDamageTypes;
 import dev.arqon.effect.ModEffects;
@@ -52,7 +54,9 @@ public final class BodyTemperatureSystem {
 		}
 
 		ServerLevel level = (ServerLevel) player.level();
-		double ambient = AmbientTemperature.at(level, player);
+		// Воздух вокруг с учётом одежды: именно эту температуру «чувствует» тело, и именно её видит клиент.
+		double air = AmbientTemperature.at(level, player);
+		double ambient = Clothing.effectiveAmbient(air, ClothingProtection.of(player));
 		BodyTemperature.setAmbient(player, ambient);
 		double body = ClimateModel.nextBodyTemperature(BodyTemperature.get(player), ambient, INTERVAL_TICKS);
 		BodyTemperature.set(player, body);
