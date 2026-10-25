@@ -49,7 +49,7 @@ public final class BodyTemperatureSystem {
 		}
 		if (player.isCreative() || player.isSpectator()) {
 			applyState(player, ThermalState.NORMAL);
-			FrostbiteSystem.clearEffects(player);
+			TissueSystem.clearEffects(player);
 			BodyTemperature.setAmbient(player, ModAttachments.DEFAULT_AMBIENT);
 			return;
 		}
@@ -63,7 +63,7 @@ public final class BodyTemperatureSystem {
 		double body = ClimateModel.nextBodyTemperature(current, ambient, INTERVAL_TICKS);
 		if (body < current) {
 			// Обмороженное туловище хуже держит тепло: остывание быстрее.
-			body = current + (body - current) * FrostbiteSystem.coolingFactor(player);
+			body = current + (body - current) * TissueSystem.coolingFactor(player);
 		}
 		BodyTemperature.set(player, body);
 
@@ -73,8 +73,8 @@ public final class BodyTemperatureSystem {
 			return;
 		}
 		applyState(player, state);
-		// Обморожение считаем по воздуху без одежды: одежда учитывается отдельно для каждой части тела.
-		FrostbiteSystem.update(player, air, body, INTERVAL_TICKS / 20.0);
+		// Части тела считаем по воздуху без одежды: одежда учитывается отдельно для каждой части.
+		TissueSystem.update(player, air, body, INTERVAL_TICKS / 20.0);
 	}
 
 	private static void kill(ServerPlayer player, ServerLevel level, ThermalState state) {

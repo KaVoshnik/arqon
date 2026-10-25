@@ -5,8 +5,8 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.sounds.SoundEvents;
 
-import dev.arqon.body.BodyFrost;
 import dev.arqon.body.BodyPart;
+import dev.arqon.body.BodyStates;
 import dev.arqon.body.Frostbite;
 
 /**
@@ -28,7 +28,7 @@ public final class HeartbeatFeedback {
 			cooldown = 0;
 			return;
 		}
-		double torso = BodyFrost.get(player, BodyPart.TORSO);
+		double torso = BodyStates.get(player).frost[BodyPart.TORSO.ordinal()];
 		if (torso < Frostbite.HEARTBEAT_FROM) {
 			cooldown = 0;
 			return;

@@ -4,8 +4,8 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 
-import dev.arqon.body.BodyFrost;
 import dev.arqon.body.BodyPart;
+import dev.arqon.body.BodyStates;
 import dev.arqon.body.Frostbite;
 
 /**
@@ -34,7 +34,7 @@ public final class ThermalOverlay {
 
 		// Обмороженная голова: темнеет по краям зрения, тем сильнее, чем хуже.
 		if (client.player != null) {
-			double headFrost = BodyFrost.get(client.player, BodyPart.HEAD);
+			double headFrost = BodyStates.get(client.player).frost[BodyPart.HEAD.ordinal()];
 			if (headFrost >= Frostbite.FROSTBITTEN_FROM) {
 				float s = (float) Math.min(1.0, (headFrost - Frostbite.FROSTBITTEN_FROM) / (Frostbite.MAX - Frostbite.FROSTBITTEN_FROM));
 				vignette(graphics, width, height, 0x000000, 0.45f + 0.5f * s, 0.30f + 0.20f * s);

@@ -12,62 +12,93 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
 import dev.arqon.Arqon;
-import dev.arqon.body.BodyFrost;
 import dev.arqon.body.BodyPart;
+import dev.arqon.body.BodyState;
+import dev.arqon.body.BodyStates;
 import dev.arqon.body.BodyTemperature;
-import dev.arqon.body.FrostbiteSystem;
+import dev.arqon.body.TissueSystem;
 
 /**
  * Команды для отладки, регистрируются только в dev-окружении.
- * /bodytemp <значение>  установить температуру тела (удобно проверять пороги без многочасового ожидания).
+ * /bodytemp <значение>            температура тела (удобно проверять пороги без многочасового ожидания)
+ * /frost <часть|all> <0..100>     обморожение части (все части: см. BodyPart, например right_index, left_foot)
+ * /burn <часть|all> <0..100>      ожог части
+ * /parttemp <часть|all> <°C>      температура части
  */
 public final class DebugCommands {
 	private DebugCommands() {
 	}
 
-	public static void init() {
-		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> registerFrost(dispatcher));
-		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
-				dispatcher.register(Commands.literal("bodytemp")
-						.then(Commands.argument("value", DoubleArgumentType.doubleArg(0.0, 60.0))
-								.executes(context -> {
-									ServerPlayer player = context.getSource().getPlayerOrException();
-									double value = DoubleArgumentType.getDouble(context, "value");
-									BodyTemperature.set(player, value);
-									context.getSource().sendSuccess(
-											() -> Component.literal("Температура тела: " + Arqon.formatTemperature(value) + " °C"),
-											false
-									);
-									return 1;
-								}))));
+	private enum Kind {
+		FROST("frost", 0.0, 100.0),
+		BURN("burn", 0.0, 100.0),
+		TEMP("parttemp", -40.0, 90.0);
+
+		final String command;
+		final double min;
+		final double max;
+
+		Kind(String command, double min, double max) {
+			this.command = command;
+			this.min = min;
+			this.max = max;
+		}
 	}
 
-	/** /frost <часть|all> <0..100>: задаёт обморожение (части: head, torso, left_arm, right_arm, left_leg, right_leg). */
-	private static void registerFrost(CommandDispatcher<CommandSourceStack> dispatcher) {
-		LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal("frost");
-		root.then(frostBranch("all", null));
+	public static void init() {
+		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
+			registerBodyTemp(dispatcher);
+			for (Kind kind : Kind.values()) {
+				registerPartCommand(dispatcher, kind);
+			}
+		});
+	}
+
+	private static void registerBodyTemp(CommandDispatcher<CommandSourceStack> dispatcher) {
+		dispatcher.register(Commands.literal("bodytemp")
+				.then(Commands.argument("value", DoubleArgumentType.doubleArg(0.0, 60.0))
+						.executes(context -> {
+							ServerPlayer player = context.getSource().getPlayerOrException();
+							double value = DoubleArgumentType.getDouble(context, "value");
+							BodyTemperature.set(player, value);
+							context.getSource().sendSuccess(
+									() -> Component.literal("Температура тела: " + Arqon.formatTemperature(value) + " °C"),
+									false
+							);
+							return 1;
+						})));
+	}
+
+	private static void registerPartCommand(CommandDispatcher<CommandSourceStack> dispatcher, Kind kind) {
+		LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal(kind.command);
+		root.then(partBranch(kind, "all", null));
 		for (BodyPart part : BodyPart.values()) {
-			root.then(frostBranch(part.id, part));
+			root.then(partBranch(kind, part.id, part));
 		}
 		dispatcher.register(root);
 	}
 
-	private static LiteralArgumentBuilder<CommandSourceStack> frostBranch(String name, BodyPart only) {
+	private static LiteralArgumentBuilder<CommandSourceStack> partBranch(Kind kind, String name, BodyPart only) {
 		return Commands.literal(name)
-				.then(Commands.argument("value", DoubleArgumentType.doubleArg(0.0, 100.0))
+				.then(Commands.argument("value", DoubleArgumentType.doubleArg(kind.min, kind.max))
 						.executes(context -> {
 							ServerPlayer player = context.getSource().getPlayerOrException();
 							double value = DoubleArgumentType.getDouble(context, "value");
-							double[] frost = BodyFrost.get(player);
+							BodyState state = BodyStates.get(player);
 							for (BodyPart part : BodyPart.values()) {
-								if (only == null || part == only) {
-									frost[part.ordinal()] = value;
+								if (only != null && part != only) {
+									continue;
+								}
+								switch (kind) {
+									case FROST -> state.frost[part.ordinal()] = value;
+									case BURN -> state.burn[part.ordinal()] = value;
+									case TEMP -> state.temp[part.ordinal()] = value;
 								}
 							}
-							BodyFrost.set(player, frost);
-							FrostbiteSystem.applyEffects(player, frost);
+							BodyStates.set(player, state);
+							TissueSystem.applyEffects(player, state);
 							context.getSource().sendSuccess(
-									() -> Component.literal("Обморожение (" + name + "): " + Math.round(value)),
+									() -> Component.literal(kind.command + " (" + name + "): " + Math.round(value)),
 									false
 							);
 							return 1;

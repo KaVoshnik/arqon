@@ -36,6 +36,17 @@ public final class ModEffects {
 			.addAttributeModifier(Attributes.BLOCK_BREAK_SPEED, Arqon.id("effect.frostbitten_arms.mining"),
 					-0.15, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
 
+	/** Обожжённые ноги: ходьба медленнее, как от обморожения. */
+	public static final Holder<MobEffect> BURNED_LEGS = registerEffect("burned_legs", new ThermalEffect(0xD0804F)
+			.addAttributeModifier(Attributes.MOVEMENT_SPEED, Arqon.id("effect.burned_legs"),
+					-0.15, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+	/** Обожжённые руки: бить и копать медленнее. */
+	public static final Holder<MobEffect> BURNED_ARMS = registerEffect("burned_arms", new ThermalEffect(0xD0603F)
+			.addAttributeModifier(Attributes.ATTACK_SPEED, Arqon.id("effect.burned_arms.attack"),
+					-0.15, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
+			.addAttributeModifier(Attributes.BLOCK_BREAK_SPEED, Arqon.id("effect.burned_arms.mining"),
+					-0.15, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+
 	/** Обмороженное лицо: темнеет в глазах, бег выматывает (уровни: -, обморожение, тяжёлое, омертвение). */
 	public static final Holder<MobEffect> FROSTBITTEN_HEAD = register("frostbitten_head", 0x8FB0E0);
 	/** Обмороженное туловище: тело остывает быстрее. */
@@ -64,8 +75,9 @@ public final class ModEffects {
 		return List.of(ASPHYXIA, HYPERTHERMIA, MILD_HYPOTHERMIA, MODERATE_HYPOTHERMIA);
 	}
 
-	public static List<Holder<MobEffect>> frostbite() {
-		return List.of(FROSTBITTEN_LEGS, FROSTBITTEN_ARMS, FROSTBITTEN_HEAD, FROSTBITTEN_TORSO);
+	/** Эффекты повреждений частей тела (обморожение и ожоги). */
+	public static List<Holder<MobEffect>> tissue() {
+		return List.of(FROSTBITTEN_LEGS, FROSTBITTEN_ARMS, FROSTBITTEN_HEAD, FROSTBITTEN_TORSO, BURNED_LEGS, BURNED_ARMS);
 	}
 
 	/** Вызывается из инициализатора мода, чтобы эффекты зарегистрировались заранее. */

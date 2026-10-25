@@ -1,6 +1,5 @@
 package dev.arqon.body;
 
-import java.util.Collections;
 import java.util.List;
 
 import com.mojang.serialization.Codec;
@@ -46,13 +45,14 @@ public final class ModAttachments {
 	);
 
 	/**
-	 * Обморожение частей тела (0..100), по порядку {@link BodyPart}. Сохраняется вместе с игроком и
-	 * синхронизируется с ним самим (экран тела читает значения на клиенте). После смерти сбрасывается.
+	 * Состояние частей тела: температура, обморожение и ожог каждой, плоским списком (см. {@link BodyState}).
+	 * Сохраняется вместе с игроком и синхронизируется с ним самим (экран тела читает значения на клиенте).
+	 * Без copyOnDeath: после смерти тело здоровое.
 	 */
-	public static final AttachmentType<List<Double>> BODY_FROST = AttachmentRegistry.create(
-			Arqon.id("body_frost"),
+	public static final AttachmentType<List<Double>> BODY_STATE = AttachmentRegistry.create(
+			Arqon.id("body_state"),
 			builder -> builder
-					.initializer(() -> Collections.nCopies(BodyPart.COUNT, 0.0))
+					.initializer(() -> BodyState.resting().toList())
 					.persistent(Codec.DOUBLE.listOf())
 					.syncWith(ByteBufCodecs.DOUBLE.apply(ByteBufCodecs.list()), AttachmentSyncPredicate.targetOnly())
 	);

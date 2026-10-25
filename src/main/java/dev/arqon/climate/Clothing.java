@@ -63,15 +63,20 @@ public final class Clothing {
 
 	/**
 	 * Защита конкретной части тела: что надето именно на ней. Любой из комплектов может быть null (ничего не надето).
-	 * Здесь берётся полное значение предмета, а не вклад слота: шапка целиком греет голову, пальто туловище и руки,
-	 * штаны ноги (ботинки добавляют немного сверху).
+	 * Здесь берётся полное значение предмета, а не вклад слота: шапка целиком греет голову, пальто туловище,
+	 * рукава руки (кисти и пальцы только краем рукава), штаны ноги, ботинки стопы.
 	 */
 	public static Protection forPart(dev.arqon.body.BodyPart part, SetProfile head, SetProfile chest, SetProfile legs, SetProfile feet) {
 		Protection p = switch (part.group) {
 			case HEAD -> cover(head, 1.0);
 			case TORSO -> cover(chest, 1.0);
-			case ARMS -> cover(chest, 0.9);
-			case LEGS -> cover(legs, 0.75).plus(cover(feet, 0.25));
+			case ARMS -> cover(chest, 0.92);
+			case HANDS -> cover(chest, 0.50);
+			case FINGERS -> cover(chest, 0.45);
+			case LEGS -> part == dev.arqon.body.BodyPart.RIGHT_THIGH || part == dev.arqon.body.BodyPart.LEFT_THIGH
+					? cover(legs, 1.0)
+					: cover(legs, 0.8).plus(cover(feet, 0.2));
+			case FEET -> cover(legs, 0.25).plus(cover(feet, 0.75));
 		};
 		return p.clamped();
 	}

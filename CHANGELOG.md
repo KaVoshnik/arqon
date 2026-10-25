@@ -38,14 +38,16 @@ How to write entries
 - Vanilla armor now affects temperature: leather slightly warms, metal armor (chainmail, iron, gold, diamond, netherite) makes both cold and heat slightly worse
 - More heat sources: lava cauldron, lit redstone lamp, redstone torch and candles, soul torch, lantern, soul lantern, jack o'lantern, shroomlight, glowstone; frosted ice as a cold source
 - Clothing and shelters affect what the body feels and what the visual feedback shows; the thermometer still shows the plain air temperature
-- Body model with six parts: head, torso, two arms, two legs
-- Frostbite per body part: parts freeze when the air they feel is below 0 °C, extremities first, faster when the whole body is cold; warming up only in real warmth; severe frostbite (75+) does not heal on its own
-- Clothing now protects per part: a hat the head, a coat the torso and arms, trousers and boots the legs
-- Effects Frostbitten Legs (-15 % movement speed per level) and Frostbitten Arms (-15 % attack and mining speed per level)
-- Body screen (key B, rebindable): an outlined silhouette of the six parts with a frost icon on affected parts, a feeling panel (body and surroundings in words) and a panel for the hovered part with condition, a four-step bar and its consequence; no numbers, panels widen to fit the longest text; hint messages above the hotbar when a part goes numb or frostbitten
+- Body model with 24 parts: head, torso, and on each side upper arm, forearm, hand, five fingers, thigh, shin and foot; each part has its own temperature
+- Part temperature depends on the air it feels (with the clothing on that part), the body heat, blood flow (vessels narrow in the cold, fingers and feet suffer first) and the item held in the hand
+- Held items heat or cool the hand: lava bucket +3-4 °C per 10 seconds, magma block, blaze rod, torch; ice, packed ice, blue ice, snow, powder snow bucket and water bucket cool it
+- Frostbite when a part itself is below 4 °C and burns when it is above 44 °C; severe damage (75+) does not heal on its own
+- Clothing protects per part: a hat the head, a coat the torso, arms and partly hands and fingers, trousers the thighs and shins, boots the feet
+- Effects Frostbitten and Burned Legs (-15 % movement speed per level) and Frostbitten and Burned Arms (-15 % attack and mining speed per level, from hands and fingers)
+- Body screen (key B, rebindable): an outlined silhouette with joints, a feeling panel (body and surroundings in words) and a panel for the hovered part with feeling, condition, a four-step bar and its consequence; click a hand to open a window with its five fingers; no numbers, panels widen to fit the longest text; hint messages above the hotbar when a part goes numb, frostbitten or burned
 - Effects Frostbitten Face (vision darkens at the edges, sprinting costs more food) and Frostbitten Torso (the body cools 1.25x / 1.5x / 1.75x faster)
 - Heartbeat in the ears when the torso frostbite reaches 85 and above, louder and faster towards 100
-- Developer-only `/frost <part|all> <0-100>` command
+- Developer-only `/frost`, `/burn` and `/parttemp` commands (`<part|all> <value>`)
 
 ### Changed
 
