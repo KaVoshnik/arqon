@@ -118,5 +118,22 @@
 	"message.arqon.frost.feet.severe": "Severe frostbite on your feet",
 	"message.arqon.burn.numb": "Your skin burns from the heat",
 	"message.arqon.burn.frostbitten": "Burn",
-	"message.arqon.burn.severe": "Severe burn"
+	"message.arqon.burn.severe": "Severe burn",
+	"item.arqon.wool_gloves": "Wool Gloves",
+	"item.arqon.leather_gloves": "Leather Gloves",
+	"item.arqon.lore.leather_glove": "Protect hands from cold and splinters",
+	"item.arqon.lore.glove_use": "Use to wear, take off in the body screen",
+	"effect.arqon.splinters": "Splinters",
+	"message.arqon.splinter": "A splinter in your finger",
+	"message.arqon.splinter.pulled": "Splinter removed",
+	"body.arqon.splinter.hint": "Click a finger with a splinter",
+	"body.arqon.splinter.count": "Splinters: %s",
+	"body.arqon.splinter.part": "Splinter in this finger",
+	"body.arqon.pull.title": "Splinter",
+	"body.arqon.pull.help": "Grab the splinter end and pull along it",
+	"body.arqon.pull.slip": "Slipped! Pull straighter",
+	"body.arqon.pull.done": "Done",
+	"body.arqon.gloves.worn": "Gloves: %s",
+	"body.arqon.gloves.none": "No gloves",
+	"body.arqon.gloves.take_off": "Take off gloves"
 }

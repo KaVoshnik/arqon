@@ -2,6 +2,8 @@ package dev.arqon.client;
 
 import java.util.Locale;
 
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -14,8 +16,12 @@ import dev.arqon.body.BodyState;
 import dev.arqon.body.BodyStates;
 import dev.arqon.body.BodyTemperature;
 import dev.arqon.body.Frostbite;
+import dev.arqon.body.Gloves;
 import dev.arqon.body.PartThermals;
+import dev.arqon.body.SplinterSystem;
+import dev.arqon.body.Splinters;
 import dev.arqon.climate.ThermalState;
+import dev.arqon.net.BodyActionPayload;
 
 /**
  * Экран тела: силуэт из частей с суставами и две панели слева (общее самочувствие и выбранная часть).
@@ -54,6 +60,8 @@ public class BodyScreen extends Screen {
 	private static final int FILL_HOT = 0xFF3A2220;
 	private static final int FILL_SCALDING = 0xFF4A241C;
 
+	private static final int SPLINTER_EDGE = 0xFFD9A066;
+	private static final int SPLINTER_CORE = 0xFF6B4423;
 	private static final int PANEL_BORDER = 0xFF56626E;
 	private static final int PANEL_BODY = 0xF0141A22;
 	private static final int PANEL_HEADER = 0xFF222B36;
@@ -244,6 +252,22 @@ public class BodyScreen extends Screen {
 	private Button rightHandButton;
 	private Button leftHandButton;
 	private Button closeButton;
+	private Button gloveButton;
+
+	// Мини-игра «вытащить занозу».
+	private static final double PULL_LENGTH = 64.0;
+	private static final double PULL_VISIBLE = 16.0;
+	private static final double PULL_NEEDED = PULL_LENGTH - PULL_VISIBLE;
+	private static final double PULL_MAX_SIDEWAYS = 22.0;
+	/** Номер пальца 0..9, из которого тянем занозу, или -1. */
+	private int pullIndex = -1;
+	private boolean grabbing;
+	private double pulled;
+	private double grabPulled;
+	private double grabMouseX;
+	private double grabMouseY;
+	private boolean wasDown;
+	private long slipUntil;
 
 	public BodyScreen() {
 		super(Component.translatable("screen.arqon.body"));
@@ -262,21 +286,39 @@ public class BodyScreen extends Screen {
 		originX = Math.max(panelW + 40, originX);
 		originY = (this.height - GH * px) / 2;
 
-		pxF = Math.max(2, Math.min(5, (this.height - 80) / FH));
-		popupW = FW * pxF + 24;
-		popupH = FH * pxF + 40;
+		pxF = Math.max(2, Math.min(5, (this.height - 100) / FH));
+		popupW = Math.max(FW * pxF + 24, 150);
+		popupH = FH * pxF + 80;
 		popupX = Math.min(originX + GW * px + 28, this.width - popupW - 8);
 		popupY = (this.height - popupH) / 2;
 
 		// Невидимые кнопки поверх нарисованного: нажатие на кисть и на крестик окошка. Рисуем их сами.
 		rightHandButton = handButton(BodyPart.Side.RIGHT);
 		leftHandButton = handButton(BodyPart.Side.LEFT);
-		closeButton = Button.builder(Component.empty(), b -> popupSide = null)
+		closeButton = Button.builder(Component.empty(), b -> {
+					if (pullIndex >= 0) {
+						pullIndex = -1;
+						grabbing = false;
+					} else {
+						closePopup();
+					}
+				})
 				.bounds(popupX + popupW - 16, popupY + 2, 14, 12).build();
 		closeButton.setAlpha(0.0f);
 		addRenderableWidget(rightHandButton);
 		addRenderableWidget(leftHandButton);
 		addRenderableWidget(closeButton);
+
+		gloveButton = Button.builder(Component.translatable("body.arqon.gloves.take_off"),
+						b -> ClientPlayNetworking.send(new BodyActionPayload(BodyActionPayload.TAKE_OFF_GLOVES, 0)))
+				.bounds(popupX + 10, popupY + popupH - 26, popupW - 20, 18).build();
+		addRenderableWidget(gloveButton);
+	}
+
+	private void closePopup() {
+		popupSide = null;
+		pullIndex = -1;
+		grabbing = false;
 	}
 
 	private Button handButton(BodyPart.Side side) {
@@ -285,7 +327,15 @@ public class BodyScreen extends Screen {
 		int y0 = originY + box[1] * px - 2;
 		int w = (box[2] - box[0] + 1) * px + 4;
 		int h = (box[3] - box[1] + 1) * px + 4;
-		Button button = Button.builder(Component.empty(), b -> popupSide = popupSide == side ? null : side)
+		Button button = Button.builder(Component.empty(), b -> {
+					if (popupSide == side) {
+						closePopup();
+					} else {
+						popupSide = side;
+						pullIndex = -1;
+						grabbing = false;
+					}
+				})
 				.bounds(x0, y0, w, h).build();
 		button.setAlpha(0.0f);
 		return button;
@@ -295,6 +345,10 @@ public class BodyScreen extends Screen {
 	public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
 		closeButton.visible = popupSide != null;
 		closeButton.active = popupSide != null;
+		Player me = Minecraft.getInstance().player;
+		boolean gloved = me != null && Gloves.has(me);
+		gloveButton.visible = popupSide != null && pullIndex < 0 && gloved;
+		gloveButton.active = gloveButton.visible;
 		super.render(g, mouseX, mouseY, partialTick);
 		// Затемняем мир, чтобы силуэт и панели читались.
 		g.fill(0, 0, this.width, this.height, 0xB0070A10);
@@ -327,8 +381,37 @@ public class BodyScreen extends Screen {
 		drawSilhouette(g, state, hoveredMain);
 		drawIcons(g, state);
 
+		// Нажатие левой кнопки читаем опросом: так не зависим от сигнатур событий мыши.
+		boolean down = Minecraft.getInstance().mouseHandler.isLeftPressed();
+		boolean pressed = down && !wasDown;
+		wasDown = down;
+		int splinterMask = SplinterSystem.mask(player);
+
 		if (popupSide != null) {
-			drawPopup(g, state, hoveredFinger);
+			if (pullIndex >= 0) {
+				if (!Splinters.has(splinterMask, pullIndex)) {
+					pullIndex = -1;
+				} else {
+					updatePull(mouseX, mouseY, down, pressed);
+					drawPull(g, mouseX, mouseY);
+				}
+			}
+			if (pullIndex < 0) {
+				if (pressed && hoveredFinger != null && hoveredFinger.group == BodyPart.Group.FINGERS) {
+					int idx = splinterIndex(hoveredFinger);
+					if (idx >= 0 && Splinters.has(splinterMask, idx)) {
+						pullIndex = idx;
+						pulled = 0.0;
+						grabbing = false;
+					}
+				}
+				if (pullIndex < 0) {
+					drawPopup(g, state, hoveredFinger, splinterMask);
+					if (gloveButton.visible) {
+						gloveButton.render(g, mouseX, mouseY, partialTick);
+					}
+				}
+			}
 		}
 
 		int panelX = 12;
@@ -452,7 +535,7 @@ public class BodyScreen extends Screen {
 		return fingerPart(fingerCell(cellX, cellY));
 	}
 
-	private void drawPopup(GuiGraphics g, BodyState state, BodyPart hoveredFinger) {
+	private void drawPopup(GuiGraphics g, BodyState state, BodyPart hoveredFinger, int splinterMask) {
 		BodyPart hand = BodyPart.hand(popupSide);
 		panel(g, popupX, popupY, popupW, popupH, Component.translatable("body.arqon.part." + hand.id));
 		g.drawString(this.font, "x", popupX + popupW - 12, popupY + 4, TEXT_DIM);
@@ -469,7 +552,8 @@ public class BodyScreen extends Screen {
 					if (owner >= 0) {
 						BodyPart part = fingerPart(owner);
 						int sx = popupSide == BodyPart.Side.LEFT ? FW - 1 - x : x;
-						color = FINGER_EDGE_RIGHT[y][sx] ? (part == hoveredFinger ? ACCENT : OUTLINE) : fill(state, part);
+						boolean splintered = part.group == BodyPart.Group.FINGERS && Splinters.has(splinterMask, splinterIndex(part));
+						color = FINGER_EDGE_RIGHT[y][sx] ? (part == hoveredFinger ? ACCENT : splintered ? SPLINTER_EDGE : OUTLINE) : fill(state, part);
 					}
 				}
 				if (runStart >= 0 && color != runColor) {
@@ -482,6 +566,193 @@ public class BodyScreen extends Screen {
 				}
 			}
 		}
+
+		// Занозы: тёмная палочка у кончика пальца.
+		int[][] tops = fingerTops();
+		boolean left = popupSide == BodyPart.Side.LEFT;
+		for (int f = 0; f < 5; f++) {
+			if (!Splinters.has(splinterMask, Splinters.index(left, f)) || tops[f] == null) {
+				continue;
+			}
+			int sx = left ? FW - 1 - tops[f][0] : tops[f][0];
+			int mx = ox + sx * pxF;
+			int my = oy + (tops[f][1] + 4) * pxF;
+			for (int k = 0; k < 6; k++) {
+				g.fill(mx + k, my - k * 2, mx + k + 3, my - k * 2 + 3, k >= 4 ? 0xFFC8955A : SPLINTER_CORE);
+			}
+		}
+
+		int count = Splinters.count(splinterMask);
+		int textY = oy + FH * pxF + 4;
+		if (count > 0) {
+			g.drawString(this.font, Component.translatable("body.arqon.splinter.count", count), popupX + 10, textY, 0xFFD9A066);
+			g.drawString(this.font, Component.translatable("body.arqon.splinter.hint"), popupX + 10, textY + 11, TEXT_DIM);
+		}
+	}
+
+	/** Верхняя клетка каждого пальца (в раскладке правой руки): сюда рисуем занозу. */
+	private static int[][] fingerTops;
+
+	private static int[][] fingerTops() {
+		if (fingerTops != null) {
+			return fingerTops;
+		}
+		int[][] tops = new int[5][];
+		for (int f = 0; f < 5; f++) {
+			for (int y = 0; y < FH && tops[f] == null; y++) {
+				int sum = 0;
+				int n = 0;
+				for (int x = 0; x < FW; x++) {
+					if (FINGER_OWNER_RIGHT[y][x] == f) {
+						sum += x;
+						n++;
+					}
+				}
+				if (n > 0) {
+					tops[f] = new int[]{sum / n, y};
+				}
+			}
+		}
+		fingerTops = tops;
+		return tops;
+	}
+
+	/** Номер пальца 0..9 для заноз (см. Splinters) или -1, если это не палец. */
+	private static int splinterIndex(BodyPart part) {
+		for (BodyPart.Side side : new BodyPart.Side[]{BodyPart.Side.RIGHT, BodyPart.Side.LEFT}) {
+			BodyPart[] fingers = BodyPart.fingers(side);
+			for (int f = 0; f < fingers.length; f++) {
+				if (fingers[f] == part) {
+					return Splinters.index(side == BodyPart.Side.LEFT, f);
+				}
+			}
+		}
+		return -1;
+	}
+
+	// ---------------------------- мини-игра: вытащить занозу ----------------------------
+
+	private static final double DIR_X = 0.70;
+	private static final double DIR_Y = -0.714;
+
+	private double entryX() {
+		return popupX + popupW / 2.0 + 22;
+	}
+
+	private double entryY() {
+		return popupY + 28 + 70;
+	}
+
+	/** Внутренний конец занозы при вытянутой на pulled. */
+	private double startX() {
+		return entryX() - DIR_X * PULL_NEEDED;
+	}
+
+	private double startY() {
+		return entryY() - DIR_Y * PULL_NEEDED;
+	}
+
+	private double endX() {
+		return startX() + DIR_X * (pulled + PULL_LENGTH);
+	}
+
+	private double endY() {
+		return startY() + DIR_Y * (pulled + PULL_LENGTH);
+	}
+
+	private static double distToSegment(double px, double py, double ax, double ay, double bx, double by) {
+		double dx = bx - ax;
+		double dy = by - ay;
+		double len2 = dx * dx + dy * dy;
+		double t = len2 == 0 ? 0 : Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / len2));
+		double cx = ax + dx * t;
+		double cy = ay + dy * t;
+		return Math.hypot(px - cx, py - cy);
+	}
+
+	private void updatePull(int mouseX, int mouseY, boolean down, boolean pressed) {
+		if (!down) {
+			grabbing = false;
+			return;
+		}
+		if (!grabbing) {
+			// Схватить можно торчащую часть занозы.
+			if (pressed && distToSegment(mouseX, mouseY, entryX(), entryY(), endX(), endY()) <= 9) {
+				grabbing = true;
+				grabPulled = pulled;
+				grabMouseX = mouseX;
+				grabMouseY = mouseY;
+			}
+			return;
+		}
+		double dx = mouseX - grabMouseX;
+		double dy = mouseY - grabMouseY;
+		double along = dx * DIR_X + dy * DIR_Y;
+		double sideways = dx * -DIR_Y + dy * DIR_X;
+		if (Math.abs(sideways) > PULL_MAX_SIDEWAYS) {
+			// Пальцы соскользнули: часть прогресса потеряна.
+			grabbing = false;
+			pulled *= 0.6;
+			slipUntil = System.currentTimeMillis() + 1500;
+			return;
+		}
+		pulled = Math.max(0.0, Math.min(PULL_NEEDED, grabPulled + along));
+		if (pulled >= PULL_NEEDED - 0.5) {
+			ClientPlayNetworking.send(new BodyActionPayload(BodyActionPayload.PULL_SPLINTER, pullIndex));
+			pullIndex = -1;
+			grabbing = false;
+		}
+	}
+
+	private void drawLine(GuiGraphics g, double ax, double ay, double bx, double by, int thickness, int color) {
+		int steps = (int) Math.ceil(Math.hypot(bx - ax, by - ay));
+		for (int i = 0; i <= steps; i++) {
+			double t = steps == 0 ? 0 : i / (double) steps;
+			int x = (int) Math.round(ax + (bx - ax) * t);
+			int y = (int) Math.round(ay + (by - ay) * t);
+			g.fill(x - thickness / 2, y - thickness / 2, x - thickness / 2 + thickness, y - thickness / 2 + thickness, color);
+		}
+	}
+
+	private void drawPull(GuiGraphics g, int mouseX, int mouseY) {
+		panel(g, popupX, popupY, popupW, popupH, Component.translatable("body.arqon.pull.title"));
+		g.drawString(this.font, "x", popupX + popupW - 12, popupY + 4, TEXT_DIM);
+
+		// Палец крупно: скруглённый столбик.
+		int cx = popupX + popupW / 2;
+		int top = popupY + 36;
+		int bottom = popupY + popupH - 22;
+		int half = 26;
+		for (int y = top; y < bottom; y++) {
+			int inset = 0;
+			int fromTop = y - top;
+			if (fromTop < half) {
+				inset = (int) Math.round(half - Math.sqrt(Math.max(0, half * half - (half - fromTop) * (half - fromTop))));
+			}
+			g.fill(cx - half + inset - 2, y, cx + half - inset + 2, y + 1, OUTLINE);
+			g.fill(cx - half + inset, y, cx + half - inset, y + 1, 0xFFD7A184);
+		}
+		// Ноготь.
+		g.fill(cx - 12, top + 8, cx + 12, top + 24, 0xFFEBC9B4);
+
+		// Заноза: под кожей темнее, снаружи ярче.
+		double ax = startX() + DIR_X * pulled;
+		double ay = startY() + DIR_Y * pulled;
+		drawLine(g, ax, ay, entryX(), entryY(), 3, 0xFF8C5A3A);
+		drawLine(g, entryX(), entryY(), endX(), endY(), 3, grabbing ? 0xFFFFD866 : 0xFF5A3A1E);
+		// Красное пятнышко у входа.
+		g.fill((int) entryX() - 3, (int) entryY() - 3, (int) entryX() + 3, (int) entryY() + 3, 0xFFB04A3C);
+
+		// Полоска прогресса.
+		int barX = popupX + 12;
+		int barY = popupY + popupH - 14;
+		int barW = popupW - 24;
+		g.fill(barX, barY, barX + barW, barY + 6, 0xFF2A323C);
+		g.fill(barX, barY, barX + (int) Math.round(barW * pulled / PULL_NEEDED), barY + 6, 0xFFD9A066);
+
+		boolean slipped = System.currentTimeMillis() < slipUntil;
+		Component help = Component.translatable(slipped ? "body.arqon.pull.slip" : "body.arqon.pull.help");
+		g.drawCenteredString(this.font, help, cx, popupY + 20, slipped ? 0xFFFF8A4A : TEXT_DIM);
 	}
 
 	// ---------------------------- панели ----------------------------
@@ -521,7 +792,10 @@ public class BodyScreen extends Screen {
 
 		String title = Component.translatable("body.arqon.part." + selected.id).getString().toUpperCase(Locale.ROOT);
 		boolean isHand = selected.group == BodyPart.Group.HANDS;
-		int h = 20 + 14 + 14 + 14 + 14 + 14 + 14 + 4 + (isHand ? 14 : 0);
+		Player me = Minecraft.getInstance().player;
+		int splIdx = splinterIndex(selected);
+		boolean splintered = me != null && splIdx >= 0 && Splinters.has(SplinterSystem.mask(me), splIdx);
+		int h = 20 + 14 + 14 + 14 + 14 + 14 + 14 + 4 + (isHand || splintered ? 14 : 0);
 		panel(g, x, y, panelW, h, Component.literal(title));
 
 		row(g, x, y + 22, Component.translatable("body.arqon.row.feel"),
@@ -547,6 +821,9 @@ public class BodyScreen extends Screen {
 		g.drawString(this.font, Component.translatable(effectKey(selected, isBurn, stage)), x + 8, y + 88, TEXT_DIM);
 		if (isHand) {
 			g.drawString(this.font, Component.translatable("body.arqon.hint.fingers"), x + 8, y + 102, TONE_FROST[2]);
+		}
+		if (splintered) {
+			g.drawString(this.font, Component.translatable("body.arqon.splinter.part"), x + 8, y + 102, 0xFFD9A066);
 		}
 	}
 

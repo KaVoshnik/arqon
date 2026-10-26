@@ -118,5 +118,22 @@
 	"message.arqon.frost.feet.severe": "Тяжёлое обморожение стоп",
 	"message.arqon.burn.numb": "Кожа горит от жара",
 	"message.arqon.burn.frostbitten": "Ожог",
-	"message.arqon.burn.severe": "Тяжёлый ожог"
+	"message.arqon.burn.severe": "Тяжёлый ожог",
+	"item.arqon.wool_gloves": "Шерстяные перчатки",
+	"item.arqon.leather_gloves": "Кожаные перчатки",
+	"item.arqon.lore.leather_glove": "Защищают руки от холода и заноз",
+	"item.arqon.lore.glove_use": "ПКМ: надеть на руки, снять можно в экране тела",
+	"effect.arqon.splinters": "Занозы",
+	"message.arqon.splinter": "Заноза в пальце",
+	"message.arqon.splinter.pulled": "Заноза вытащена",
+	"body.arqon.splinter.hint": "Нажми на палец с занозой",
+	"body.arqon.splinter.count": "Занозы: %s",
+	"body.arqon.splinter.part": "В пальце заноза",
+	"body.arqon.pull.title": "Заноза",
+	"body.arqon.pull.help": "Зажми конец занозы и тяни вдоль неё",
+	"body.arqon.pull.slip": "Сорвалось! Тяни ровнее",
+	"body.arqon.pull.done": "Готово",
+	"body.arqon.gloves.worn": "Перчатки: %s",
+	"body.arqon.gloves.none": "Перчаток нет",
+	"body.arqon.gloves.take_off": "Снять перчатки"
 }

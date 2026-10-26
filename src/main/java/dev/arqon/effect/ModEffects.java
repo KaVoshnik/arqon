@@ -52,6 +52,13 @@ public final class ModEffects {
 	/** Обмороженное туловище: тело остывает быстрее. */
 	public static final Holder<MobEffect> FROSTBITTEN_TORSO = register("frostbitten_torso", 0x5F7FB8);
 
+	/** Занозы в пальцах: слабее удар и медленнее копание, каждый уровень (заноза) сильнее. */
+	public static final Holder<MobEffect> SPLINTERS = registerEffect("splinters", new ThermalEffect(0x9A6B3C)
+			.addAttributeModifier(Attributes.ATTACK_DAMAGE, Arqon.id("effect.splinters.weakness"),
+					-0.10, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
+			.addAttributeModifier(Attributes.BLOCK_BREAK_SPEED, Arqon.id("effect.splinters.mining"),
+					-0.12, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+
 	private static Holder<MobEffect> register(String name, int color) {
 		return registerEffect(name, new ThermalEffect(color));
 	}
@@ -77,7 +84,7 @@ public final class ModEffects {
 
 	/** Эффекты повреждений частей тела (обморожение и ожоги). */
 	public static List<Holder<MobEffect>> tissue() {
-		return List.of(FROSTBITTEN_LEGS, FROSTBITTEN_ARMS, FROSTBITTEN_HEAD, FROSTBITTEN_TORSO, BURNED_LEGS, BURNED_ARMS);
+		return List.of(FROSTBITTEN_LEGS, FROSTBITTEN_ARMS, FROSTBITTEN_HEAD, FROSTBITTEN_TORSO, BURNED_LEGS, BURNED_ARMS, SPLINTERS);
 	}
 
 	/** Вызывается из инициализатора мода, чтобы эффекты зарегистрировались заранее. */

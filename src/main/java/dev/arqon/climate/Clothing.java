@@ -67,12 +67,17 @@ public final class Clothing {
 	 * рукава руки (кисти и пальцы только краем рукава), штаны ноги, ботинки стопы.
 	 */
 	public static Protection forPart(dev.arqon.body.BodyPart part, SetProfile head, SetProfile chest, SetProfile legs, SetProfile feet) {
+		return forPart(part, head, chest, legs, feet, null);
+	}
+
+	/** То же, но с перчатками: они закрывают кисти и особенно пальцы, рукав добавляет остальное. */
+	public static Protection forPart(dev.arqon.body.BodyPart part, SetProfile head, SetProfile chest, SetProfile legs, SetProfile feet, SetProfile gloves) {
 		Protection p = switch (part.group) {
 			case HEAD -> cover(head, 1.0);
 			case TORSO -> cover(chest, 1.0);
 			case ARMS -> cover(chest, 0.92);
-			case HANDS -> cover(chest, 0.50);
-			case FINGERS -> cover(chest, 0.45);
+			case HANDS -> cover(chest, 0.40).plus(cover(gloves, 0.70));
+			case FINGERS -> cover(chest, 0.30).plus(cover(gloves, 0.85));
 			case LEGS -> part == dev.arqon.body.BodyPart.RIGHT_THIGH || part == dev.arqon.body.BodyPart.LEFT_THIGH
 					? cover(legs, 1.0)
 					: cover(legs, 0.8).plus(cover(feet, 0.2));

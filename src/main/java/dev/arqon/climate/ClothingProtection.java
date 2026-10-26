@@ -9,6 +9,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 
 import dev.arqon.body.BodyPart;
+import dev.arqon.body.Gloves;
 import dev.arqon.item.ModItems;
 
 /** Что именно надето на игроке и какую защиту от холода и жары это даёт. */
@@ -19,6 +20,9 @@ public final class ClothingProtection {
 	static {
 		register(Clothing.WOOL, ModItems.WOOL_CAP, ModItems.WOOL_COAT, ModItems.WOOL_TROUSERS, ModItems.WOOL_BOOTS);
 		register(Clothing.LINEN, ModItems.LINEN_HAT, ModItems.LINEN_SHIRT, ModItems.LINEN_TROUSERS, ModItems.LINEN_SANDALS);
+
+		register(Clothing.WOOL, ModItems.WOOL_GLOVES);
+		register(Clothing.LEATHER, ModItems.LEATHER_GLOVES);
 
 		register(Clothing.LEATHER, Items.LEATHER_HELMET, Items.LEATHER_CHESTPLATE, Items.LEATHER_LEGGINGS, Items.LEATHER_BOOTS);
 		register(Clothing.METAL, Items.CHAINMAIL_HELMET, Items.CHAINMAIL_CHESTPLATE, Items.CHAINMAIL_LEGGINGS, Items.CHAINMAIL_BOOTS);
@@ -53,7 +57,8 @@ public final class ClothingProtection {
 				SETS.get(player.getItemBySlot(EquipmentSlot.HEAD).getItem()),
 				SETS.get(player.getItemBySlot(EquipmentSlot.CHEST).getItem()),
 				SETS.get(player.getItemBySlot(EquipmentSlot.LEGS).getItem()),
-				SETS.get(player.getItemBySlot(EquipmentSlot.FEET).getItem())
+				SETS.get(player.getItemBySlot(EquipmentSlot.FEET).getItem()),
+				SETS.get(Gloves.get(player).getItem())
 		);
 	}
 

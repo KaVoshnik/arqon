@@ -24,6 +24,7 @@ import dev.arqon.body.TissueSystem;
  * /frost <часть|all> <0..100>     обморожение части (все части: см. BodyPart, например right_index, left_foot)
  * /burn <часть|all> <0..100>      ожог части
  * /parttemp <часть|all> <°C>      температура части
+ * /splinter <0..10>               занозы в пальцах (0 убирает все)
  */
 public final class DebugCommands {
 	private DebugCommands() {
@@ -65,6 +66,24 @@ public final class DebugCommands {
 									() -> Component.literal("Температура тела: " + Arqon.formatTemperature(value) + " °C"),
 									false
 							);
+							return 1;
+						})));
+	}
+
+	private static void registerSplinter(CommandDispatcher<CommandSourceStack> dispatcher) {
+		dispatcher.register(Commands.literal("splinter")
+				.then(Commands.argument("count", com.mojang.brigadier.arguments.IntegerArgumentType.integer(0, 10))
+						.executes(context -> {
+							ServerPlayer player = context.getSource().getPlayerOrException();
+							int count = com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(context, "count");
+							int mask = dev.arqon.body.Splinters.add(0, player.getMainArm() == net.minecraft.world.entity.HumanoidArm.LEFT,
+									Math.min(count, 5), player.getRandom()::nextInt);
+							if (count > 5) {
+								mask = dev.arqon.body.Splinters.add(mask, player.getMainArm() != net.minecraft.world.entity.HumanoidArm.LEFT,
+										count - 5, player.getRandom()::nextInt);
+							}
+							dev.arqon.body.SplinterSystem.setMask(player, mask);
+							context.getSource().sendSuccess(() -> Component.literal("splinter: " + count), false);
 							return 1;
 						})));
 	}

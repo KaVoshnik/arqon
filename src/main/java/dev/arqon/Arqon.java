@@ -11,6 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import dev.arqon.body.BodyTemperatureSystem;
+import dev.arqon.body.Gloves;
+import dev.arqon.body.SplinterSystem;
+import dev.arqon.net.ModNetworking;
 import dev.arqon.body.ModAttachments;
 import dev.arqon.debug.DebugCommands;
 import dev.arqon.effect.ModEffects;
@@ -28,6 +31,9 @@ public class Arqon implements ModInitializer {
 		ModItems.init();
 		ThermometerDisplay.init();
 		BodyTemperatureSystem.init();
+		ModNetworking.init();
+		SplinterSystem.init();
+		Gloves.init();
 
 		// Отладочные команды есть только в dev-окружении (runClient / runServer из IDE),
 		// в собранном моде для игроков их нет.

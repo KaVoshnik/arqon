@@ -18,7 +18,10 @@ How to write entries
 ## [Unreleased]
 
 ### Added
-
+- Перчатки (шерстяные и кожаные): отдельный слот на теле, ПКМ надевает, в окошке пальцев кнопка «Снять перчатки». Защищают кисти и пальцы от холода сильнее рукава и в 4 раза реже дают занозы.
+- Занозы: при рубке дерева без топора шанс 5% получить от 1 до 5 заноз в пальцы ведущей руки (чем больше, тем реже). Полсердца урона и эффект «Занозы» (слабее удар, медленнее копание, растёт с числом заноз).
+- Мини-игра в окошке пальцев: клик по пальцу с занозой, схватить торчащий конец мышью и тянуть вдоль занозы; сорвёшься при сильном уходе в сторону.
+- Dev-команда `/splinter <0..10>`.
 - Thermometer item: shows the air temperature above the hotbar while held in either hand
 - Clinical thermometer item: costs half a hunger point per use and shows body temperature (36.6 °C by default)
 - Air temperature model based on biome, time of day and weather (rain -3 °C, thunderstorm -5 °C); no day/night or weather in the Nether and the End

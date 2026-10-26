@@ -46,6 +46,20 @@ public final class ModItems {
 	public static final Item LINEN_TROUSERS = register("linen_trousers", Item::new, clothing(ClothingMaterials.LINEN, ArmorType.LEGGINGS, "light"));
 	public static final Item LINEN_SANDALS = register("linen_sandals", Item::new, clothing(ClothingMaterials.LINEN, ArmorType.BOOTS, "light"));
 
+	// ---------- Перчатки (отдельный слот на теле, надеваются правой кнопкой) ----------
+
+	public static final Item WOOL_GLOVES = register("wool_gloves", GloveItem::new, glove("warm"));
+	public static final Item LEATHER_GLOVES = register("leather_gloves", GloveItem::new, glove("leather_glove"));
+
+	private static Item.Properties glove(String loreKind) {
+		return new Item.Properties()
+				.stacksTo(1)
+				.component(DataComponents.LORE, new ItemLore(List.of(
+						Component.translatable("item.arqon.lore." + loreKind).withStyle(ChatFormatting.GRAY),
+						Component.translatable("item.arqon.lore.glove_use").withStyle(ChatFormatting.DARK_GRAY)
+				)));
+	}
+
 	/** Одежда: надевается в слоты брони, защиты и прочности нет, в подсказке написано, от чего она спасает. */
 	private static Item.Properties clothing(ArmorMaterial material, ArmorType type, String loreKind) {
 		return new Item.Properties()
@@ -77,6 +91,8 @@ public final class ModItems {
 			entries.accept(LINEN_SHIRT);
 			entries.accept(LINEN_TROUSERS);
 			entries.accept(LINEN_SANDALS);
+			entries.accept(WOOL_GLOVES);
+			entries.accept(LEATHER_GLOVES);
 		});
 	}
 }
