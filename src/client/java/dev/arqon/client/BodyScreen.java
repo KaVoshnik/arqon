@@ -253,6 +253,11 @@ public class BodyScreen extends Screen {
 	private Button leftHandButton;
 	private Button closeButton;
 	private Button gloveButton;
+	private Button gridButton;
+	private Button pullButton;
+	private int lastMouseX;
+	private int lastMouseY;
+	private int splinterMaskCache;
 
 	// Мини-игра «вытащить занозу».
 	private static final double PULL_LENGTH = 64.0;
@@ -266,7 +271,6 @@ public class BodyScreen extends Screen {
 	private double grabPulled;
 	private double grabMouseX;
 	private double grabMouseY;
-	private boolean wasDown;
 	private long slipUntil;
 
 	public BodyScreen() {
@@ -309,10 +313,54 @@ public class BodyScreen extends Screen {
 		addRenderableWidget(leftHandButton);
 		addRenderableWidget(closeButton);
 
+		// Нажатия читаем через кнопки (невидимые), а не через события мыши: так не зависим от их сигнатур.
+		gridButton = Button.builder(Component.empty(), b -> startPull())
+				.bounds(popupX + 12, popupY + 28, FW * pxF, FH * pxF).build();
+		gridButton.setAlpha(0.0f);
+		addRenderableWidget(gridButton);
+		pullButton = Button.builder(Component.empty(), b -> togglePullGrab())
+				.bounds(popupX, popupY + 16, popupW, popupH - 16).build();
+		pullButton.setAlpha(0.0f);
+		addRenderableWidget(pullButton);
+
 		gloveButton = Button.builder(Component.translatable("body.arqon.gloves.take_off"),
 						b -> ClientPlayNetworking.send(new BodyActionPayload(BodyActionPayload.TAKE_OFF_GLOVES, 0)))
 				.bounds(popupX + 10, popupY + popupH - 26, popupW - 20, 18).build();
 		addRenderableWidget(gloveButton);
+	}
+
+	/** Клик по пальцу в окошке: если в нём заноза, начинаем мини-игру. */
+	private void startPull() {
+		if (popupSide == null || pullIndex >= 0) {
+			return;
+		}
+		BodyPart finger = fingerAt(lastMouseX, lastMouseY);
+		if (finger == null || finger.group != BodyPart.Group.FINGERS) {
+			return;
+		}
+		int idx = splinterIndex(finger);
+		if (idx >= 0 && Splinters.has(splinterMaskCache, idx)) {
+			pullIndex = idx;
+			pulled = 0.0;
+			grabbing = false;
+		}
+	}
+
+	/** Клик в мини-игре: схватить занозу, если кликнули по торчащему концу, или отпустить, если уже держим. */
+	private void togglePullGrab() {
+		if (pullIndex < 0) {
+			return;
+		}
+		if (grabbing) {
+			grabbing = false;
+			return;
+		}
+		if (distToSegment(lastMouseX, lastMouseY, entryX(), entryY(), endX(), endY()) <= 10) {
+			grabbing = true;
+			grabPulled = pulled;
+			grabMouseX = lastMouseX;
+			grabMouseY = lastMouseY;
+		}
 	}
 
 	private void closePopup() {
@@ -349,6 +397,12 @@ public class BodyScreen extends Screen {
 		boolean gloved = me != null && Gloves.has(me);
 		gloveButton.visible = popupSide != null && pullIndex < 0 && gloved;
 		gloveButton.active = gloveButton.visible;
+		gridButton.visible = popupSide != null && pullIndex < 0;
+		gridButton.active = gridButton.visible;
+		pullButton.visible = popupSide != null && pullIndex >= 0;
+		pullButton.active = pullButton.visible;
+		lastMouseX = mouseX;
+		lastMouseY = mouseY;
 		super.render(g, mouseX, mouseY, partialTick);
 		// Затемняем мир, чтобы силуэт и панели читались.
 		g.fill(0, 0, this.width, this.height, 0xB0070A10);
@@ -381,30 +435,19 @@ public class BodyScreen extends Screen {
 		drawSilhouette(g, state, hoveredMain);
 		drawIcons(g, state);
 
-		// Нажатие левой кнопки читаем опросом: так не зависим от сигнатур событий мыши.
-		boolean down = Minecraft.getInstance().mouseHandler.isLeftPressed();
-		boolean pressed = down && !wasDown;
-		wasDown = down;
 		int splinterMask = SplinterSystem.mask(player);
+		splinterMaskCache = splinterMask;
 
 		if (popupSide != null) {
 			if (pullIndex >= 0) {
 				if (!Splinters.has(splinterMask, pullIndex)) {
 					pullIndex = -1;
 				} else {
-					updatePull(mouseX, mouseY, down, pressed);
+					updatePull(mouseX, mouseY);
 					drawPull(g, mouseX, mouseY);
 				}
 			}
 			if (pullIndex < 0) {
-				if (pressed && hoveredFinger != null && hoveredFinger.group == BodyPart.Group.FINGERS) {
-					int idx = splinterIndex(hoveredFinger);
-					if (idx >= 0 && Splinters.has(splinterMask, idx)) {
-						pullIndex = idx;
-						pulled = 0.0;
-						grabbing = false;
-					}
-				}
 				if (pullIndex < 0) {
 					drawPopup(g, state, hoveredFinger, splinterMask);
 					if (gloveButton.visible) {
@@ -670,19 +713,8 @@ public class BodyScreen extends Screen {
 		return Math.hypot(px - cx, py - cy);
 	}
 
-	private void updatePull(int mouseX, int mouseY, boolean down, boolean pressed) {
-		if (!down) {
-			grabbing = false;
-			return;
-		}
+	private void updatePull(int mouseX, int mouseY) {
 		if (!grabbing) {
-			// Схватить можно торчащую часть занозы.
-			if (pressed && distToSegment(mouseX, mouseY, entryX(), entryY(), endX(), endY()) <= 9) {
-				grabbing = true;
-				grabPulled = pulled;
-				grabMouseX = mouseX;
-				grabMouseY = mouseY;
-			}
 			return;
 		}
 		double dx = mouseX - grabMouseX;

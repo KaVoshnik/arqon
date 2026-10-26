@@ -130,7 +130,7 @@
 	"body.arqon.splinter.count": "Splinters: %s",
 	"body.arqon.splinter.part": "Splinter in this finger",
 	"body.arqon.pull.title": "Splinter",
-	"body.arqon.pull.help": "Grab the splinter end and pull along it",
+	"body.arqon.pull.help": "Click the sticking-out end, pull along it, click again to let go",
 	"body.arqon.pull.slip": "Slipped! Pull straighter",
 	"body.arqon.pull.done": "Done",
 	"body.arqon.gloves.worn": "Gloves: %s",

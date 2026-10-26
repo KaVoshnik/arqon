@@ -130,7 +130,7 @@
 	"body.arqon.splinter.count": "Занозы: %s",
 	"body.arqon.splinter.part": "В пальце заноза",
 	"body.arqon.pull.title": "Заноза",
-	"body.arqon.pull.help": "Зажми конец занозы и тяни вдоль неё",
+	"body.arqon.pull.help": "Нажми на торчащий конец, тяни вдоль занозы, ещё клик отпускает",
 	"body.arqon.pull.slip": "Сорвалось! Тяни ровнее",
 	"body.arqon.pull.done": "Готово",
 	"body.arqon.gloves.worn": "Перчатки: %s",
